@@ -7,6 +7,8 @@ public class AiPlayer : MonoBehaviour {
 
 	public DestinationManager destMgr;
 
+	public ArrowManager arrowMgr;
+
 	public GameObject explosionPrefab;
 
 	public GameObject ghostPrefab;
@@ -17,11 +19,14 @@ public class AiPlayer : MonoBehaviour {
 
 	private Destination currentDestination;
 
+	private ShowPath pathShower;
+
 	private int agentPriority;
 
 	private bool hasInitiated;
 
 	void Start () {
+		pathShower = GetComponent<ShowPath> ();
 		agent = GetComponent<NavMeshAgent> ();
 		agent.enabled = false;
 		startDestination = destMgr.nextDestination ();
@@ -29,9 +34,6 @@ public class AiPlayer : MonoBehaviour {
 		currentDestination = destMgr.nextDestination ();
 		hasInitiated = false;
 		agentPriority = 0;
-
-		IconManager.SetIcon (startDestination.gameObject, IconManager.LabelIcon.Blue);
-		IconManager.SetIcon (currentDestination.gameObject, IconManager.LabelIcon.Yellow);
 	}
 
 	void FixedUpdate () {
@@ -39,30 +41,42 @@ public class AiPlayer : MonoBehaviour {
 			hasInitiated = true;
 			agent.enabled = true;
 			agent.SetDestination (currentDestination.goalPosition);
+			onNewDestination ();
 		}
 		if (agent.pathPending)
 			return;
-		if (hasInitiated && agent.desiredVelocity.magnitude == 0) {
-			Destination dest = destMgr.nextDestination ();
+		if (hasInitiated) {
+			if (agent.desiredVelocity.magnitude == 0) {
+				Destination dest = destMgr.nextDestination ();
 
-			if (dest == null) {
-				Instantiate (explosionPrefab, this.transform);
-				GameObject.Destroy (this);
-			} else {
-				IconManager.SetIcon (startDestination.gameObject, IconManager.LabelIcon.Purple);
-				IconManager.SetIcon (currentDestination.gameObject, IconManager.LabelIcon.Purple);
-				SpawnGhost ();
-				startDestination = currentDestination;
-				currentDestination = dest;
-				agent.SetDestination (dest.goalPosition);
-				IconManager.SetIcon (startDestination.gameObject, IconManager.LabelIcon.Blue);
-				IconManager.SetIcon (currentDestination.gameObject, IconManager.LabelIcon.Yellow);
+				if (dest == null) {
+					Instantiate (explosionPrefab, this.transform.position, Quaternion.identity);
+					arrowMgr.HideArrow ();
+					pathShower.hidePath ();
+					GameObject.Destroy (this.gameObject);
+				} else {
+					IconManager.SetIcon (startDestination.gameObject, IconManager.LabelIcon.Purple);
+					IconManager.SetIcon (currentDestination.gameObject, IconManager.LabelIcon.Purple);
+					SpawnGhost ();
+					startDestination = currentDestination;
+					currentDestination = dest;
+					agent.SetDestination (dest.goalPosition);
+
+					onNewDestination ();
+				}
 			}
-		}	
+			pathShower.displayPath (agent.path);
+		}
+	}
+
+	private void onNewDestination() {
+		pathShower.setTarget (currentDestination.transform);
+		IconManager.SetIcon (startDestination.gameObject, IconManager.LabelIcon.Blue);
+		IconManager.SetIcon (currentDestination.gameObject, IconManager.LabelIcon.Yellow);
+		arrowMgr.PointAtPosition (currentDestination.goalPosition);
 	}
 
 	private void SpawnGhost () {
-		Debug.Log ("spawned");
 		Ghost newGhost = Instantiate (ghostPrefab, startDestination.goalPosition, Quaternion.identity).GetComponent<Ghost>();
 		agentPriority += 10;
 		newGhost.Init (startDestination, currentDestination, agentPriority);
