@@ -17,11 +17,11 @@ public class DestinationManager : MonoBehaviour {
 
 	public int maxDestinationHeight = 2;
 
+	public int destinationIndex = 0;
+
 	private Vector3 minBoundsPoint;
 	private Vector3 maxBoundsPoint;
 	private float boundsSize;
-
-	private int destinationIndex = 0;
 
 	void Awake () {
 		Random.InitState (0);

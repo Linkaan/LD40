@@ -26,7 +26,7 @@ GameObject:
   - component: {fileID: 114406591120979290}
   m_Layer: 0
   m_Name: Ghost
-  m_TagString: Untagged
+  m_TagString: ghost
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -142,8 +142,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e3aa33b588f443feb43c149d0ebc997, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointA: {fileID: 0}
-  pointB: {fileID: 0}
+  spawnEffectPrefab: {fileID: 1058407931598714, guid: c969daabf4a0742129657033f47ce33d,
+    type: 2}
+  waypointResolutionRadius: 2
+  waypointLayerMask:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!136 &136302507527892834
 CapsuleCollider:
   m_ObjectHideFlags: 1

@@ -13,6 +13,8 @@ public class AiPlayer : MonoBehaviour {
 
 	public GameObject ghostPrefab;
 
+	public Transform waypointsHolder;
+
 	private NavMeshAgent agent;
 
 	private Destination startDestination;
@@ -25,6 +27,10 @@ public class AiPlayer : MonoBehaviour {
 
 	private bool hasInitiated;
 
+	private List<Waypoint> waypoints;
+
+	private float lastTime;
+
 	void Start () {
 		pathShower = GetComponent<ShowPath> ();
 		agent = GetComponent<NavMeshAgent> ();
@@ -34,6 +40,8 @@ public class AiPlayer : MonoBehaviour {
 		currentDestination = destMgr.nextDestination ();
 		hasInitiated = false;
 		agentPriority = 0;
+
+		waypoints = new List<Waypoint> ();
 	}
 
 	void FixedUpdate () {
@@ -46,7 +54,7 @@ public class AiPlayer : MonoBehaviour {
 		if (agent.pathPending)
 			return;
 		if (hasInitiated) {
-			if (agent.desiredVelocity.magnitude == 0) {
+			if (agent.remainingDistance < agent.stoppingDistance) {
 				Destination dest = destMgr.nextDestination ();
 
 				if (dest == null) {
@@ -65,6 +73,14 @@ public class AiPlayer : MonoBehaviour {
 					onNewDestination ();
 				}
 			}
+				
+			if (Time.time - lastTime > 1.0f) {
+				lastTime = Time.time;
+				Waypoint point = new Waypoint ();
+				point.goalPosition = transform.position;
+				waypoints.Add (point);
+			}
+
 			pathShower.displayPath (agent.path);
 		}
 	}
@@ -77,8 +93,15 @@ public class AiPlayer : MonoBehaviour {
 	}
 
 	private void SpawnGhost () {
+		/*
+		Waypoint point = new Waypoint ();
+		point.goalPosition = transform.position;
+		waypoints.Add (point);
+
 		Ghost newGhost = Instantiate (ghostPrefab, startDestination.goalPosition, Quaternion.identity).GetComponent<Ghost>();
 		agentPriority += 10;
-		newGhost.Init (startDestination, currentDestination, agentPriority);
+		newGhost.Init (startDestination, currentDestination, agentPriority, new List<Waypoint>(waypoints));
+		waypoints.Clear ();
+		*/
 	}
 }
