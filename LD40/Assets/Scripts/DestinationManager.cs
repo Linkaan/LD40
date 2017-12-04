@@ -24,7 +24,7 @@ public class DestinationManager : MonoBehaviour {
 	private float boundsSize;
 
 	void Awake () {
-		Random.InitState (0);
+		//Random.InitState (0);
 
 		boundsSize = float.NegativeInfinity;
 

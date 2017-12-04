@@ -24,7 +24,6 @@ public class EnemyAppear : MonoBehaviour {
 			return;
 		if (agent.remainingDistance < 1 && agent.desiredVelocity.magnitude == 0) {
 			hasArrived = true;
-			Debug.Log ("EXECUTE NOW");
 			StartCoroutine (onReady);
 		}
 	}
@@ -34,6 +33,7 @@ public class EnemyAppear : MonoBehaviour {
 		hasDestination = false;
 		agent.enabled = false;
 		transform.position = origin.position;
+		transform.rotation = Quaternion.identity;
 		gameObject.SetActive (false);
 	}
 
